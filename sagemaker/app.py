@@ -1,61 +1,99 @@
+import os
 import subprocess
-from pathlib import Path
+import threading
+import time
+import gradio as gr
+import qrcode
+from pycloudflared import Tunnel
 
-from fastapi import FastAPI, File, Form, UploadFile
-from fastapi.responses import FileResponse
-
-app = FastAPI(title="FaceSwapperVideoV1 SageMaker")
-REPO_DIR = Path("/opt/program/FaceSwapperVideoV1")
-OUTPUT_DIR = Path("/tmp/faceswap-output")
-
-
-@app.get("/")
-def root():
-    return {"status": "ok", "message": "FaceSwapperVideoV1 SageMaker service is running."}
+# Upstream Repository Clone ပြုလုပ်ခြင်း (မရှိသေးပါက)
+if not os.path.exists("cli.py"):
+  subprocess.run([
+      "git",
+      "clone",
+      "https://github.com/Deci1337/FaceSwapperVideoV1.git",
+      ".",
+  ])
 
 
-@app.post("/swap")
-async def swap_video(
-    video: UploadFile = File(...),
-    source_face: UploadFile = File(...),
-    quality: str = Form("high"),
-    provider: str = Form("cuda"),
-):
-    if not REPO_DIR.exists():
-        raise RuntimeError("Repo not found. Mount or clone FaceSwapperVideoV1 into /opt/program/FaceSwapperVideoV1")
+def run_faceswap(source_img, target_vid, target_face_index, enhancer, fidelity):
+  if not source_img or not target_vid:
+    return None
+  output_path = "/tmp/sagemaker_output.mp4"
 
-    OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
+  cmd = [
+      "python",
+      "cli.py",
+      "--source",
+      source_img,
+      "--target",
+      target_vid,
+      "--output",
+      output_path,
+      "--execution-provider",
+      "cuda",
+      "--execution-threads",
+      "8",
+      "--color-matching",
+      "seamless",
+      "--target-face-index",
+      str(int(target_face_index)),
+  ]
 
-    input_video = OUTPUT_DIR / video.filename
-    input_face = OUTPUT_DIR / source_face.filename
-    output_path = OUTPUT_DIR / "result.mp4"
+  if enhancer != "none":
+    cmd.extend(
+        ["--face-enhancer", enhancer, "--codeformer-fidelity", str(fidelity)]
+    )
 
-    input_video.write_bytes(await video.read())
-    input_face.write_bytes(await source_face.read())
+  subprocess.run(cmd)
+  return output_path
 
-    cmd = [
-        "python",
-        str(REPO_DIR / "cli.py"),
-        "swap",
-        "--input",
-        str(input_video),
-        "--source-face",
-        str(input_face),
-        "--output",
-        str(output_path),
-        "--quality",
-        quality,
-        "--provider",
-        provider,
-        "--keep-audio",
-        "true",
-    ]
 
-    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(REPO_DIR))
-    if proc.returncode != 0:
-        raise RuntimeError(proc.stderr or proc.stdout or "Face swap failed")
+def launch_ui():
+  with gr.Blocks(title="SageMaker FaceSwapper") as demo:
+    gr.Markdown("## 🚀 AWS SageMaker FaceSwapper (Multi-Face Target Lock)")
+    with gr.Row():
+      with gr.Column():
+        src = gr.Image(type="filepath", label="1. Source Face Image")
+        tgt = gr.Video(label="2. Target Video")
+        f_idx = gr.Number(
+            value=0, precision=0, label="Target Face Index (0, 1, 2...)"
+        )
+        enh = gr.Radio(
+            ["none", "codeformer", "gfpgan"],
+            value="codeformer",
+            label="Face Enhancer Quality",
+        )
+        fid = gr.Slider(0.1, 1.0, value=0.8, label="CodeFormer Fidelity")
+        btn = gr.Button("🚀 Lock Face & Start Swap", variant="primary")
+      with gr.Column():
+        out = gr.Video(label="Output Result")
+    btn.click(run_faceswap, inputs=[src, tgt, f_idx, enh, fid], outputs=out)
 
-    if not output_path.exists():
-        raise FileNotFoundError("Output video was not generated")
+  demo.launch(
+      server_name="0.0.0.0",
+      server_port=7860,
+      prevent_thread_lock=True,
+      quiet=True,
+  )
 
-    return FileResponse(output_path, media_type="video/mp4", filename="result.mp4")
+
+if __name__ == "__main__":
+  threading.Thread(target=launch_ui, daemon=True).start()
+  time.sleep(3)
+
+  try:
+    tunnel_url = Tunnel.start(port=7860)
+    pub_url = tunnel_url.get_url()
+    print(
+        "\n" + "=" * 60 + f"\n🚀 SAGEMAKER PUBLIC URL: {pub_url}\n" + "=" * 60 + "\n"
+    )
+    qr = qrcode.QRCode()
+    qr.add_data(pub_url)
+    qr.print_ascii(invert=True)
+  except Exception as e:
+    print(f"SageMaker Tunnel Error: {e}")
+
+  # Background Server အနေဖြင့် အလုပ်လုပ်စေရန် Loop ပတ်ထားခြင်း
+  while True:
+    time.sleep(3600)
