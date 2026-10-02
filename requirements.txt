@@ -5,6 +5,7 @@ insightface==0.7.3
 psutil
 pillow
 protobuf
+QrCode
 tqdm
 gfpgan
 torch
