@@ -56,7 +56,7 @@ def run_swap(video_path: str, face_path: str, quality: str = "high", provider: s
 
 with gr.Blocks(title="FaceSwapperVideoV1") as demo:
     gr.Markdown("# FaceSwapperVideoV1 — Hugging Face Space")
-    gr.Markdown("Run a local face swap with a source image and target video.")
+    gr.Markdown("Upload a source face image and a target video to generate a face-swapped output.")
 
     with gr.Row():
         video = gr.Video(label="Target video")

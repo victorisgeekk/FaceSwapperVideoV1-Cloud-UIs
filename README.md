@@ -1,19 +1,15 @@
 # FaceSwapperVideoV1 Cloud UIs
 
-This repository contains starter UI wrappers for running the upstream project
-`Deci1337/FaceSwapperVideoV1` in cloud environments.
+This repo provides ready-to-use starter UI wrappers for the upstream project:
+https://github.com/Deci1337/FaceSwapperVideoV1
 
 Included:
 - `colab/FaceSwapper_Colab.ipynb` — Google Colab notebook UI
 - `kaggle/FaceSwapper_Kaggle.ipynb` — Kaggle notebook UI
-- `huggingface_space/app.py` — Gradio-based Hugging Face Space app
-- `huggingface_space/requirements.txt` — HF Space dependencies
-- `sagemaker/app.py` — FastAPI service for SageMaker
-- `sagemaker/requirements.txt` — SageMaker runtime deps
-- `sagemaker/entrypoint.sh` — container startup script
+- `huggingface_space/app.py` — Gradio app for Hugging Face Space
+- `huggingface_space/requirements.txt` — Space dependencies
+- `sagemaker/app.py` — FastAPI app for SageMaker
+- `sagemaker/requirements.txt` — SageMaker dependencies
+- `sagemaker/entrypoint.sh` — container entrypoint
 
-The files are intentionally lightweight starter templates for local cloud deployment.
-They are designed to wrap the upstream CLI rather than replace it.
-
-Upstream repo:
-https://github.com/Deci1337/FaceSwapperVideoV1
+These are starter templates meant to wrap the upstream CLI and model pipeline. They are not a replacement for the original repo; they are convenience frontends for running the underlying face-swap workflow in cloud environments.

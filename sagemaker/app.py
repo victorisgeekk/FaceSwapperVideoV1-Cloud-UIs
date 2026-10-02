@@ -1,4 +1,4 @@
-import os
+import subprocess
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, UploadFile
@@ -32,8 +32,6 @@ async def swap_video(
     input_face.write_bytes(await source_face.read())
 
     output_path = OUTPUT_DIR / "result.mp4"
-    import subprocess
-
     cmd = [
         "python",
         str(REPO_DIR / "cli.py"),
