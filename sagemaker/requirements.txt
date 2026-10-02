@@ -7,5 +7,3 @@ opencv-python-headless
 ffmpeg-python
 typer
 pydantic
-
-# Heavy ML packages are installed from the upstream FaceSwapperVideoV1 repo if mounted.

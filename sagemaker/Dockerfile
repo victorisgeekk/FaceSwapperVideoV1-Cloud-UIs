@@ -1,12 +1,22 @@
-FROM python:3.10-slim
+# SageMaker Dockerfile (GPU-capable)
+# Uses an official PyTorch image with CUDA 11.8 runtime
+
+FROM pytorch/pytorch:2.2.0-cuda11.8-cudnn8-runtime
 
 WORKDIR /opt/program
 
-COPY requirements.txt /opt/program/requirements.txt
+# Copy only the minimal runtime requirements for the API service
+COPY sagemaker/requirements.txt /opt/program/requirements.txt
 RUN pip install --upgrade pip && pip install -r /opt/program/requirements.txt
 
-COPY app.py /opt/program/app.py
+# Copy the FastAPI app
+COPY sagemaker/app.py /opt/program/app.py
+COPY sagemaker/entrypoint.sh /opt/program/entrypoint.sh
+RUN chmod +x /opt/program/entrypoint.sh
+
+# The upstream FaceSwapperVideoV1 repo is expected to be mounted into /opt/program/FaceSwapperVideoV1
+# or added into the image at build time if desired. Large ML deps will be installed from its requirements.txt.
 
 EXPOSE 8080
 
-CMD ["python", "/opt/program/app.py"]
+ENTRYPOINT ["/opt/program/entrypoint.sh"]

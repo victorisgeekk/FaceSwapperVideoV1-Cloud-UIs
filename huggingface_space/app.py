@@ -1,74 +1,55 @@
-import subprocess
-from pathlib import Path
-
 import gradio as gr
 
-REPO_URL = "https://github.com/Deci1337/FaceSwapperVideoV1.git"
-REPO_DIR = Path("/workspace/FaceSwapperVideoV1")
-OUTPUT_DIR = Path("/tmp/faceswap-output")
+# Demo-mode Hugging Face Space app (lightweight)
+# This Space does NOT install heavy ML dependencies (torch, insightface, gfpgan, etc.).
+# Instead it provides:
+#  - a demo explanation in Burmese
+#  - links to run the full pipeline in Colab / Kaggle / SageMaker where GPU is available
+#  - optional local preview of uploaded files (no processing)
 
+COLAB_NOTEBOOK = "https://colab.research.google.com/github/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs/blob/main/colab/FaceSwapper_Colab.ipynb"
+KAGGLE_NOTEBOOK = "https://www.kaggle.com/kernels"  # users should create a kernel and paste the notebook
+SAGEMAKER_DOC = "https://github.com/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs/tree/main/sagemaker"
 
-def ensure_repo():
-    if not REPO_DIR.exists():
-        REPO_DIR.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(["git", "clone", REPO_URL, str(REPO_DIR)], check=True)
+burmese_instructions = """
+ဤ Space သည် demo-mode ဖြစ်သည် — ဤနေရာတွင် မကြီးမားသော ML dependency များ (PyTorch, ONNX, GFPGAN, InsightFace) ကို ထည့်မထားပါ။
+ရိုးရှင်းစွာ ပြောရလျှင်၊ Face swap ကို ဤ Space အတွင်း GPU ပေါ် run ပြုလုပ်ရန် မဖြစ်နိုင်ပါ။
 
-    requirements = REPO_DIR / "requirements.txt"
-    if requirements.exists():
-        subprocess.run(["pip", "install", "-r", str(requirements)], check=False)
+အလုပ်လုပ်ပုံအတိုချုံး
+1) ဒီ Space တွင် ဗီဒီယိုနှင့် source face ကို upload လုပ်နိုင်သည်။
+2) "Open in Colab" ကို နှိပ်၍ Colab notebook ဖြင့် upstream repo ကို clone လုပ်ထားသော environment (GPU) တွင် run ပြုလုပ်နိုင်သည်။
+3) Kaggle သို့မဟုတ် SageMaker အတွက် link များကို README တွင်သွား၍ အသေးစိတ်လုပ်ဆောင်ပါ။
 
-    subprocess.run(["pip", "install", "gradio"], check=False)
+ကြိုတင်သတိပေးချက်
+- Full face-swap ကို run မည်ဆိုလျှင် Colab/GPU စနစ် သို့သွားပါ။
+- Hugging Face Spaces ကို GPU (paid) plan ဖြင့် run မိမိတို့၏ image ကို pre-build လုပ်နိုင်သော်လည်း, အများအားဖြင့် heavy ML dependencies များကို အောင်မြင်စွာ install လုပ်ရန် အခက်အခဲရှိတတ်ပါတယ်။
+"""
 
-
-def run_swap(video_path: str, face_path: str, quality: str = "high", provider: str = "cuda"):
-    ensure_repo()
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = OUTPUT_DIR / "result.mp4"
-
-    cmd = [
-        "python",
-        str(REPO_DIR / "cli.py"),
-        "swap",
-        "--input",
-        str(video_path),
-        "--source-face",
-        str(face_path),
-        "--output",
-        str(output_path),
-        "--quality",
-        quality,
-        "--provider",
-        provider,
-        "--keep-audio",
-        "true",
-    ]
-
-    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(REPO_DIR))
-    if proc.returncode != 0:
-        message = proc.stderr.strip() or proc.stdout.strip() or "Face swap failed"
-        raise RuntimeError(message)
-
-    if not output_path.exists():
-        raise FileNotFoundError(f"Expected output video at {output_path}")
-
-    return str(output_path)
-
-
-with gr.Blocks(title="FaceSwapperVideoV1") as demo:
-    gr.Markdown("# FaceSwapperVideoV1 — Hugging Face Space")
-    gr.Markdown("Upload a target video and a source face image to generate a swapped output video.")
+with gr.Blocks(title="FaceSwapperVideoV1 (Demo)") as demo:
+    gr.Markdown("# FaceSwapperVideoV1 — Demo Space")
+    gr.Markdown(burmese_instructions)
 
     with gr.Row():
-        video = gr.Video(label="Target video")
-        source_face = gr.Image(type="filepath", label="Source face image")
+        video = gr.Video(label="Target video (preview only)")
+        face = gr.Image(label="Source face (preview only)")
 
     with gr.Row():
-        quality = gr.Dropdown(["low", "medium", "high"], value="high", label="Quality")
-        provider = gr.Dropdown(["cuda", "cpu", "dml"], value="cuda", label="Provider")
+        colab_btn = gr.Button("Open in Colab (run full pipeline)")
+        hf_readme_btn = gr.Button("SageMaker / Deploy docs")
 
-    output = gr.Video(label="Output video")
-    submit = gr.Button("Run face swap")
-    submit.click(run_swap, inputs=[video, source_face, quality, provider], outputs=output)
+    def open_colab():
+        return gr.update(value=COLAB_NOTEBOOK)
 
+    def open_docs():
+        return gr.update(value=SAGEMAKER_DOC)
 
-demo.launch()
+    colab_out = gr.Textbox(label="Colab link")
+    docs_out = gr.Textbox(label="Docs link")
+    colab_btn.click(open_colab, outputs=colab_out)
+    hf_readme_btn.click(open_docs, outputs=docs_out)
+
+    gr.Markdown("---")
+    gr.Markdown("If you want a runnable UI in the cloud, use the Colab or SageMaker options where GPU and the full dependencies are available.")
+
+if __name__ == '__main__':
+    demo.launch()
