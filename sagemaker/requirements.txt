@@ -1,8 +1,9 @@
 fastapi
 uvicorn
-pydantic
 python-multipart
 numpy
-opencv-python
 Pillow
+opencv-python-headless
 ffmpeg-python
+typer
+pydantic

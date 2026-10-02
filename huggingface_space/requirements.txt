@@ -1,11 +1,7 @@
-gradio
-opencv-python
+gradio>=4.0.0
 numpy
 Pillow
+opencv-python-headless
 ffmpeg-python
 typer
 pydantic
-
-# Core project deps
-# The original project is expected to provide the heavy ML stack via its requirements file.
-# Keep this file minimal for Space startup and install the rest from the repo.

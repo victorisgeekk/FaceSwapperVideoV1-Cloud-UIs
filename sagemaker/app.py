@@ -1,70 +1,62 @@
-{
- "cells": [
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "# FaceSwapperVideoV1 — Kaggle UI\n",
-    "\n",
-    "Starter notebook for running the original FaceSwapperVideoV1 project on Kaggle.\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "!git clone https://github.com/Deci1337/FaceSwapperVideoV1.git\n",
-    "%cd FaceSwapperVideoV1\n",
-    "!python -m pip install --upgrade pip\n",
-    "!python -m pip install -r requirements.txt\n",
-    "!python -m pip install gradio\n",
-    "print('Dependencies installed')\n"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import subprocess\n",
-    "from pathlib import Path\n",
-    "\n",
-    "def run_faceswap(video_path, face_path, output_dir='/kaggle/working/output'):\n",
-    "    Path(output_dir).mkdir(exist_ok=True, parents=True)\n",
-    "    out = Path(output_dir) / 'result.mp4'\n",
-    "    cmd = [\n",
-    "        'python', 'cli.py', 'swap',\n",
-    "        '--input', str(video_path),\n",
-    "        '--source-face', str(face_path),\n",
-    "        '--output', str(out),\n",
-    "        '--quality', 'high',\n",
-    "        '--provider', 'cuda',\n",
-    "        '--keep-audio', 'true'\n",
-    "    ]\n",
-    "    proc = subprocess.run(cmd, capture_output=True, text=True)\n",
-    "    if proc.returncode != 0:\n",
-    "        print(proc.stdout)\n",
-    "        print(proc.stderr)\n",
-    "        raise RuntimeError('Face swap failed')\n",
-    "    return str(out)\n"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "name": "python",
-   "version": "3.10"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
-"path":"kaggle/FaceSwapper_Kaggle.ipynb"},{
+import os
+from pathlib import Path
+
+from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.responses import FileResponse
+
+app = FastAPI(title="FaceSwapperVideoV1 SageMaker")
+REPO_DIR = Path("/opt/program/FaceSwapperVideoV1")
+OUTPUT_DIR = Path("/tmp/faceswap-output")
+
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "FaceSwapperVideoV1 SageMaker service is running."}
+
+
+@app.post("/swap")
+async def swap_video(
+    video: UploadFile = File(...),
+    source_face: UploadFile = File(...),
+    quality: str = Form("high"),
+    provider: str = Form("cuda"),
+):
+    if not REPO_DIR.exists():
+        raise RuntimeError("Repo not found. Make sure the upstream FaceSwapperVideoV1 project is mounted or cloned.")
+
+    OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
+    input_video = OUTPUT_DIR / video.filename
+    input_face = OUTPUT_DIR / source_face.filename
+
+    input_video.write_bytes(await video.read())
+    input_face.write_bytes(await source_face.read())
+
+    output_path = OUTPUT_DIR / "result.mp4"
+    import subprocess
+
+    cmd = [
+        "python",
+        str(REPO_DIR / "cli.py"),
+        "swap",
+        "--input",
+        str(input_video),
+        "--source-face",
+        str(input_face),
+        "--output",
+        str(output_path),
+        "--quality",
+        quality,
+        "--provider",
+        provider,
+        "--keep-audio",
+        "true",
+    ]
+
+    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(REPO_DIR))
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr or proc.stdout or "Face swap failed")
+
+    if not output_path.exists():
+        raise FileNotFoundError("Output video was not generated")
+
+    return FileResponse(output_path, media_type="video/mp4", filename="result.mp4")
