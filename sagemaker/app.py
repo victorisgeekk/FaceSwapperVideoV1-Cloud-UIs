@@ -22,16 +22,17 @@ async def swap_video(
     provider: str = Form("cuda"),
 ):
     if not REPO_DIR.exists():
-        raise RuntimeError("Repo not found. Make sure the upstream FaceSwapperVideoV1 project is mounted or cloned.")
+        raise RuntimeError("Repo not found. Mount or clone FaceSwapperVideoV1 into /opt/program/FaceSwapperVideoV1")
 
     OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
+
     input_video = OUTPUT_DIR / video.filename
     input_face = OUTPUT_DIR / source_face.filename
+    output_path = OUTPUT_DIR / "result.mp4"
 
     input_video.write_bytes(await video.read())
     input_face.write_bytes(await source_face.read())
 
-    output_path = OUTPUT_DIR / "result.mp4"
     cmd = [
         "python",
         str(REPO_DIR / "cli.py"),

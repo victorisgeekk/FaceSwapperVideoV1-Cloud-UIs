@@ -1,4 +1,3 @@
-import os
 import subprocess
 from pathlib import Path
 
@@ -46,17 +45,18 @@ def run_swap(video_path: str, face_path: str, quality: str = "high", provider: s
 
     proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(REPO_DIR))
     if proc.returncode != 0:
-        raise RuntimeError(proc.stderr or proc.stdout or "Face swap failed")
+        message = proc.stderr.strip() or proc.stdout.strip() or "Face swap failed"
+        raise RuntimeError(message)
 
     if not output_path.exists():
-        raise FileNotFoundError(f"Expected output at {output_path}")
+        raise FileNotFoundError(f"Expected output video at {output_path}")
 
     return str(output_path)
 
 
 with gr.Blocks(title="FaceSwapperVideoV1") as demo:
     gr.Markdown("# FaceSwapperVideoV1 — Hugging Face Space")
-    gr.Markdown("Upload a source face image and a target video to generate a face-swapped output.")
+    gr.Markdown("Upload a target video and a source face image to generate a swapped output video.")
 
     with gr.Row():
         video = gr.Video(label="Target video")

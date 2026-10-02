@@ -1,38 +1,71 @@
 # FaceSwapperVideoV1 Cloud UIs
 
-This repository provides complete starter wrappers for running the upstream project:
+Starter cloud wrappers for the upstream project:
 https://github.com/Deci1337/FaceSwapperVideoV1
 
-## Included
+This repo includes a ready-to-use scaffold for:
+- Google Colab
+- Kaggle
+- Hugging Face Space
+- SageMaker
 
-- `colab/FaceSwapper_Colab.ipynb` — Google Colab UI notebook
-- `kaggle/FaceSwapper_Kaggle.ipynb` — Kaggle notebook runner
-- `huggingface_space/app.py` — Hugging Face Space Gradio app
-- `huggingface_space/requirements.txt` — Space dependencies
-- `sagemaker/app.py` — FastAPI service
-- `sagemaker/requirements.txt` — SageMaker runtime deps
-- `sagemaker/Dockerfile` — container image definition
-- `sagemaker/entrypoint.sh` — startup script
+## What these files do
 
-## Purpose
+Each folder wraps the original CLI (`python cli.py swap ...`) with a small UI or API so users can upload:
+- a target video
+- a source face image
+- optional quality/provider settings
 
-Each project in this repo wraps the original CLI so you can run the face-swap workflow in a cloud environment without modifying the upstream source code.
+and then receive an output video.
 
-## Typical flow
+## Included files
 
-1. Clone the upstream repo
-2. Install dependencies
-3. Launch a UI or API surface
-4. Upload a source face image and target video
-5. Run `python cli.py swap ...`
-6. Save or preview the output video
+- `colab/FaceSwapper_Colab.ipynb`
+- `kaggle/FaceSwapper_Kaggle.ipynb`
+- `huggingface_space/app.py`
+- `huggingface_space/requirements.txt`
+- `sagemaker/app.py`
+- `sagemaker/requirements.txt`
+- `sagemaker/Dockerfile`
+- `sagemaker/entrypoint.sh`
 
-## Upstream source
+## Prerequisites
 
-- https://github.com/Deci1337/FaceSwapperVideoV1
+The actual image processing still depends on the upstream project and a GPU-capable runtime when available.
+
+Recommended environment:
+- CUDA-enabled GPU
+- Python 3.10
+- FFmpeg installed and on PATH
+- Internet access for installing dependencies
+
+## Quick start: local CLI path
+
+```bash
+git clone https://github.com/Deci1337/FaceSwapperVideoV1.git
+cd FaceSwapperVideoV1
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python cli.py --help
+```
+
+## Typical run
+
+```bash
+python cli.py swap \
+  --input video.mp4 \
+  --source-face face.jpg \
+  --output result.mp4 \
+  --quality high \
+  --provider cuda \
+  --keep-audio true
+```
 
 ## Notes
 
-- These are starter templates. GPU availability and environment setup still matter.
-- For best results, run on CUDA-capable GPU instances.
-- For Hugging Face Spaces and SageMaker, adapt credentials, storage, and runtime accordingly.
+These are starter cloud wrappers only. Production deployment may require:
+- persistent storage for uploaded files
+- GPU-accelerated containers
+- private model cache or mounted volumes
+- extended timeout settings

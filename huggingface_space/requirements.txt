@@ -5,3 +5,7 @@ opencv-python-headless
 ffmpeg-python
 typer
 pydantic
+
+# Upstream project stack
+# The full ML pipeline is supplied by the upstream FaceSwapperVideoV1 project requirement set.
+# Install it automatically from the cloned repo in the app startup path.
