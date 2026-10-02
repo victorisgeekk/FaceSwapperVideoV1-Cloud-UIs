@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+numpy
+Pillow
+opencv-python-headless
+ffmpeg-python
+typer
+pydantic
