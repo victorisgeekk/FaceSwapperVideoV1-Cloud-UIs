@@ -1,4 +1,4 @@
-# FaceSwapperVideoV1 Cloud UIs
+# FaceSwapperVideoV1 accountIs
 
 # 🚀 Launch on Cloud Platforms
 
@@ -10,72 +10,40 @@ Click any badge below to open the workspace directly in your own account:
 [![AWS SageMaker](https://img.shields.io/badge/AWS-SageMaker-orange?logo=amazon-aws)](https://github.com/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs/tree/main/sagemaker)
 
 
-Starter cloud wrappers for the upstream project:
-https://github.com/Deci1337/FaceSwapperVideoV1
+# 🎭 FaceSwapperVideoV1 Cloud Deployment Suite
 
-This repo includes a ready-to-use scaffold for:
-- Google Colab
-- Kaggle
-- Hugging Face Space
-- SageMaker
+[![GitHub Stars](https://img.shields.io/github/stars/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs?style=social)](https://github.com/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![CUDA Accelerated](https://img.shields.io/badge/CUDA-11.8%20%2F%2012.1-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 
-## What these files do
+A cross-platform cloud deployment suite for **[Deci1337/FaceSwapperVideoV1](https://github.com/Deci1337/FaceSwapperVideoV1)**. This repository provides pre-configured, validated scripts and notebooks to run high-fidelity video face swapping across **Google Colab**, **Kaggle**, **Hugging Face Spaces**, and **AWS SageMaker**.
 
-Each folder wraps the original CLI (`python cli.py swap ...`) with a small UI or API so users can upload:
-- a target video
-- a source face image
-- optional quality/provider settings
+---
 
-and then receive an output video.
+## ✨ Features
 
-## Included files
+- **🚀 Universal Cloud Support**: Seamless deployment wrappers for Google Colab, Kaggle, Hugging Face, and AWS SageMaker.
+- **🌐 Account-Free Cloudflare Tunnels**: Instant `https://*.trycloudflare.com` HTTPS URLs generated automatically via `pycloudflared` without requiring a Cloudflare account.
+- **📱 QR Code Auto-Generation**: QR codes printed directly in the notebook/terminal output for effortless mobile browser access.
+- **🎯 Multi-Face Target Locking**: Precision targeting using `--target-face-index` (`0`, `1`, `2`...) to lock and swap specific faces in multi-person videos.
+- **✨ Enhanced Quality Output**: Integrated `codeformer` and `gfpgan` face enhancement support with customizable fidelity sliders.
+- **⚡ T4 GPU Optimized**: Pre-configured CUDA execution providers and thread management for fast rendering.
 
-- `colab/FaceSwapper_Colab.ipynb`
-- `kaggle/FaceSwapper_Kaggle.ipynb`
-- `huggingface_space/app.py`
-- `huggingface_space/requirements.txt`
-- `sagemaker/app.py`
-- `sagemaker/requirements.txt`
-- `sagemaker/Dockerfile`
-- `sagemaker/entrypoint.sh`
+---
 
-## Prerequisites
+## 📁 Repository Structure
 
-The actual image processing still depends on the upstream project and a GPU-capable runtime when available.
-
-Recommended environment:
-- CUDA-enabled GPU
-- Python 3.10
-- FFmpeg installed and on PATH
-- Internet access for installing dependencies
-
-## Quick start: local CLI path
-
-```bash
-git clone https://github.com/Deci1337/FaceSwapperVideoV1.git
-cd FaceSwapperVideoV1
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python cli.py --help
-```
-
-## Typical run
-
-```bash
-python cli.py swap \
-  --input video.mp4 \
-  --source-face face.jpg \
-  --output result.mp4 \
-  --quality high \
-  --provider cuda \
-  --keep-audio true
-```
-
-## Notes
-
-These are starter cloud wrappers only. Production deployment may require:
-- persistent storage for uploaded files
-- GPU-accelerated containers
-- private model cache or mounted volumes
-- extended timeout settings
+```text
+victorisgeekk/FaceSwapperVideoV1-Cloud-UIs/
+├── colab/
+│   └── FaceSwapper_Colab.ipynb      # Validated Colab Notebook
+├── kaggle/
+│   └── FaceSwapper_Kaggle.ipynb     # Validated Kaggle Notebook
+├── huggingface_space/
+│   ├── app.py                       # Hugging Face Space Entrypoint
+│   └── requirements.txt             # Space Dependencies
+├── sagemaker/
+│   ├── FaceSwapper_SageMaker.ipynb  # Interactive SageMaker Studio Notebook
+│   └── app.py                       # Headless / Container Script
+└── README.md                        # Documentation
