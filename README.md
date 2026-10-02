@@ -1,5 +1,15 @@
 # FaceSwapperVideoV1 Cloud UIs
 
+# 🚀 Launch on Cloud Platforms
+
+Click any badge below to open the workspace directly in your own account:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs/blob/main/colab/FaceSwapper_Colab.ipynb)
+[![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://raw.githubusercontent.com/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs/main/kaggle/FaceSwapper_Kaggle.ipynb)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/new-space?template=victorisgeekk/FaceSwapperVideoV1-Cloud-UIs)
+[![AWS SageMaker](https://img.shields.io/badge/AWS-SageMaker-orange?logo=amazon-aws)](https://github.com/victorisgeekk/FaceSwapperVideoV1-Cloud-UIs/tree/main/sagemaker)
+
+
 Starter cloud wrappers for the upstream project:
 https://github.com/Deci1337/FaceSwapperVideoV1
 
